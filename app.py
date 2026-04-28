@@ -9,7 +9,7 @@ p{text-align: left !important;}
 )
 
 def main():
-    st.title("【DXデモアプリ】")
+    st.title("DXデモアプリ")
     st.write("手順1: 【DXデモアプリ上で打設機の稼働・非稼働時間を計測する】")
     st.write("手順2: 計測終了後【デモ用アプリ】を.xlsxとしてダウンロードし、【DXデモアプリ】秒単位ずれフォルダにいれる")
     st.write("手順3: 【実行.batをダブルクリックし、計測終了と次の計測時間の重なりをなくす】")
