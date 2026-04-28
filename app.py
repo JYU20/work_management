@@ -3,7 +3,7 @@ import streamlit as st
 st.set_page_config(layout="wide")
 st.markdown("""
 <style
-h1{text-align: left !important;}
+h1{text-align: center !important;}
 p{text-align: left !important;}            
 </style>""",unsafe_allow_html=True
 )
