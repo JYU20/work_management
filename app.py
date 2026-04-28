@@ -2,7 +2,6 @@ import streamlit as st
 import pandas as pd
 from datetime import date
 import math
-import openpyxl
 
 # 1. ページ設定
 st.set_page_config(layout="wide", page_title="DXデモアプリ")
@@ -72,6 +71,7 @@ def main():
 
     # 1. データの読み込み
     try:
+        # Excelファイルの読み込み
         df = pd.read_excel("デモ用アプリRe.xlsx", sheet_name="Sheet1")
     except Exception as e:
         st.error(f"Excelファイル『デモ用アプリRe.xlsx』の読み込みに失敗しました: {e}")
@@ -107,7 +107,7 @@ def main():
             '㎥数': 'first',      # 製品ごとの単位㎥数
             '取数': 'first',      # 製品ごとの取数
             '主キー': 'count',    # 計測回数
-            'duration_sec': 'sum' # 製品ごとの合計計測時間
+            'duration_sec': 'sum' # 製品ご下の「合計」計測時間
         }).reset_index()
 
         summary.columns = ['製品名', '㎥数', '取数', '計測回数', '秒数_合計']
@@ -119,30 +119,31 @@ def main():
         # 計測回数：全件数の合計
         total_counts = len(filtered_df)
         
-        # 【修正箇所】総計測時間の「合計」を算出
-        # summaryに格納されている各製品の合計時間をさらに合算します
-        total_seconds_sum = summary['秒数_合計'].sum()
+        # 【重要】製品別合計時間の「平均」を算出
+        # 表に並んでいる「製品ごとの合計時間」を元に平均を出します
+        avg_seconds_per_product = summary['秒数_合計'].mean()
 
         # 合計行のデータフレーム作成
         total_row = pd.DataFrame({
-            '製品名': ['【全体合計】'],
+            '製品名': ['【全体合計 / 時間は製品別平均】'],
             '㎥数': [total_volume_str],
             '取数': ['-'],
             '計測回数': [total_counts],
-            '秒数_合計': [total_seconds_sum]
+            '秒数_合計': [avg_seconds_per_product]
         })
 
         # 6. 表示用にデータを成形
+        # 製品別データの数値をフォーマット
         summary['㎥数'] = summary['㎥数'].apply(floor_to_2nd_decimal_str)
         summary['取数'] = summary['取数'].fillna(0).astype(int).astype(str)
 
         # 結合
         final_df = pd.concat([summary, total_row], ignore_index=True)
 
-        # 秒数を HH:MM:SS に変換
+        # 秒数を HH:MM:SS 形式に変換
         final_df['総計測時間'] = final_df['秒数_合計'].apply(seconds_to_hms)
 
-        # 不要なカラムを除外して表示
+        # 表示用の列整理
         display_table = final_df[['製品名', '㎥数', '取数', '計測回数', '総計測時間']]
         
         st.write(f"#### 集計結果（{start_date} ～ {end_date}）")
@@ -151,7 +152,10 @@ def main():
     # 7. 操作手順
     st.markdown("---")
     with st.expander("操作手順を表示"):
-        st.write("手順1～4: (中略)")
+        st.write("手順1: DXデモアプリ上で打設機の稼働・非稼働時間を計測する")
+        st.write("手順2: 計測終了後【デモ用アプリ】を.xlsxとしてDLし、指定のフォルダにいれる")
+        st.write("手順3: 【実行.bat】等をダブルクリックし、データを整理する")
+        st.write("手順4: Github上のフォルダにあるデモ用アプリRe.xlsxに差分を追加する")
 
 if __name__ == "__main__":
     main()
